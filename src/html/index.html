@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            <?!= include('css/style.css'); ?>
+        </style>
+    </head>
+    <body>
+        <h1>
+            加工する
+        </h1>
+        <h4>
+            INPUT
+        </h4>
+
+        <div>
+            <textarea id='inputtext'>
+            </textarea>
+        </div>
+        <div>
+            <span id='result'>
+                結果
+            </span>            
+        </div>
+        <h1>
+            jsonテスト
+        </h1>
+        <form id='form' method='get'>
+            <p>
+                <label>名前 <input type="text" name="name"></label>
+              </p>
+              <p>
+                <label>趣味 <input type="text" name="hobby"></label>
+              </p>            
+              <input type='text' id='url_sample' value='https://geoapi.heartrails.com/api/json?method=getCities&prefecture=%E6%84%9B%E7%9F%A5&area=%E5%B0%8F%E7%89%A7%E5%B8%82'>
+              <input type='text' id='url' value='https://geoapi.heartrails.com/api/json'>
+              <input type='text' id='method' value='getCities'>
+              <input type='text' id='prefecture' value='愛知県'>
+              <input type='text' id='area' value='小牧市'>
+              <p>
+                <input type="submit" value="送信">
+              </p>
+        </form>
+        <div>
+            <span id='json_result'>
+                結果
+            </span>            
+        </div>
+    </body>
+    <script>
+        const form = document.getElementById('form');
+        form.addEventListener('submit', (e)=>{
+            //testPost()
+            gPost()
+            e.preventDefault();
+        });
+
+
+        function testPost(){
+            google.script.run.withSuccessHandler(function(txt){
+                document.querySelector('#json_result').textContent = txt;
+            }).sampleText();
+        }
+
+        async function gPost(){
+            const urlSample = document.querySelector('#url_sample').value;
+            const url = document.querySelector('#url').value;
+            const method = document.querySelector('#method').value;
+            const prefecture = encodeURIComponent( document.querySelector('#prefecture').value );
+            const area = encodeURIComponent( document.querySelector('#area').value );
+            const formData = {
+                method, prefecture, area
+            };
+            const fullUrl = url + '?method=' + method + '&prefecture='+prefecture + '&area='+area;
+            console.log(fullUrl);
+            const response = await fetch(fullUrl);
+            console.log(response);
+            const data = await response.json();
+            console.log(data);
+
+            let content = '';
+            console.log(data.response.location);
+            for(let i in data.response.location) {
+                console.log(data.response.location[i]);
+                content += '<br>'+data.response.location[i].city + '(' + data.response.location[i].city_kana + ')'
+            }
+            document.querySelector('#json_result').textContent = content  ;
+
+        }
+    </script>
+</html>
